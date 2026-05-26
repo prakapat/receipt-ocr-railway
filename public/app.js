@@ -5,6 +5,8 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const formData = new FormData(form);
+
+  result.className = "";
   result.innerHTML = `<div class="loading">กำลังอัพโหลดและอ่านข้อมูล...</div>`;
 
   try {
@@ -14,38 +16,63 @@ form.addEventListener("submit", async (e) => {
     });
 
     const res = await response.json();
+
+    if (!res.success) {
+      throw new Error(res.message || "Upload failed");
+    }
+
     const data = res.data || {};
 
     result.innerHTML = `
       <div class="result-card">
         <div class="success-icon">✓</div>
         <h3>บันทึกสำเร็จ</h3>
-        <p class="muted">ระบบอ่านข้อมูลจากสลิปและบันทึกลง Google Sheet แล้ว</p>
+        <p class="muted">ระบบอ่านข้อมูลจากใบเสร็จ/ใบกำกับภาษี และบันทึกลง Google Sheet แล้ว</p>
 
         <div class="result-grid">
           <div>
-            <span>วันที่</span>
-            <strong>${data.transaction_date || "-"}</strong>
+            <span>ผู้ออกเอกสาร</span>
+            <strong>${data.issuer_name || "-"}</strong>
           </div>
+
           <div>
-            <span>ยอดเงิน</span>
-            <strong>${Number(data.amount || 0).toLocaleString("th-TH")} บาท</strong>
+            <span>เลขผู้เสียภาษีผู้ออก</span>
+            <strong>${data.issuer_tax_id || "-"}</strong>
           </div>
+
           <div>
-            <span>ผู้รับ</span>
-            <strong>${data.payee_name || data.merchant || "-"}</strong>
+            <span>เลขที่เอกสาร</span>
+            <strong>${data.receipt_no || "-"}</strong>
           </div>
+
           <div>
-            <span>ธนาคาร</span>
-            <strong>${data.bank_name || "-"}</strong>
+            <span>วันที่ออกเอกสาร</span>
+            <strong>${data.issue_date || "-"}</strong>
           </div>
-          <div class="wide">
-            <span>เลขอ้างอิง</span>
-            <strong>${data.reference_no || "-"}</strong>
+
+          <div>
+            <span>ลูกค้า</span>
+            <strong>${data.customer_name || "-"}</strong>
           </div>
+
+          <div>
+            <span>ยอดรวมทั้งสิ้น</span>
+            <strong>${Number(data.total_amount || 0).toLocaleString("th-TH")} บาท</strong>
+          </div>
+
+          <div>
+            <span>VAT</span>
+            <strong>${Number(data.vat_amount || 0).toLocaleString("th-TH")} บาท</strong>
+          </div>
+
+          <div>
+            <span>วิธีชำระเงิน</span>
+            <strong>${data.payment_method || "-"}</strong>
+          </div>
+
           <div class="wide">
             <span>สถานะ</span>
-            <strong>${data.status || "pending_review"}</strong>
+            <span class="status-badge">${data.status || "pending_review"}</span>
           </div>
         </div>
 
