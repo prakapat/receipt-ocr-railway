@@ -1,1 +1,6 @@
-# receipt-ocr-railway
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "deploy": {
+    "startCommand": "npm start"
+  }
+}
