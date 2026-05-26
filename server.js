@@ -57,7 +57,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     form.append("uploaded_by", req.body.uploaded_by || "Unknown");
     form.append("document_type", req.body.document_type || "receipt");
     form.append("transaction_type", req.body.transaction_type || "expense");
-    form.append("category", req.body.category || "ทั่วไป");
+    form.append("expense_category", req.body.expense_category || "ทั่วไป");
     form.append("description", req.body.description || "");
 
     const n8nResponse = await fetch(process.env.N8N_WEBHOOK_URL, {
