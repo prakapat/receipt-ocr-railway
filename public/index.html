@@ -1,14 +1,12 @@
-<!-- =========================
-public/index.html
-========================= -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Receipt OCR Upload</title>
+  <title>Receipt / Tax Invoice OCR Upload</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <div class="app-shell">
     <aside class="sidebar">
@@ -16,7 +14,7 @@ public/index.html
         <div class="brand-icon">R</div>
         <div>
           <strong>Receipt OCR</strong>
-          <span>AksonOCR + n8n</span>
+          <span>ใบเสร็จ / ใบกำกับภาษี</span>
         </div>
       </div>
 
@@ -28,17 +26,21 @@ public/index.html
       <div class="sidebar-card">
         <span>Workflow</span>
         <strong>Upload → OCR → Sheet</strong>
-        <small>บันทึกสลิปและใบเสร็จอัตโนมัติ</small>
+        <small>อ่านใบเสร็จรับเงินและใบกำกับภาษีไทย</small>
       </div>
     </aside>
 
     <main class="main-content">
       <header class="page-header">
         <div>
-          <p class="eyebrow">Receipt Management</p>
-          <h1>อัพโหลดสลิป / ใบเสร็จ</h1>
-          <p>ส่งไฟล์เข้า n8n แล้วอ่านข้อมูลด้วย AksonOCR เพื่อบันทึกลง Google Sheet</p>
+          <p class="eyebrow">Thai Receipt OCR</p>
+          <h1>อัพโหลดใบเสร็จ / ใบกำกับภาษี</h1>
+          <p>
+            ระบบจะส่งไฟล์เข้า n8n เพื่ออ่านข้อมูลด้วย AksonOCR
+            และบันทึกลง Google Sheet อัตโนมัติ
+          </p>
         </div>
+
         <a class="header-link" href="dashboard.html">ดู Dashboard</a>
       </header>
 
@@ -49,57 +51,79 @@ public/index.html
               <div class="dropzone-icon">↑</div>
               <strong>เลือกไฟล์หรือลากมาวาง</strong>
               <span>รองรับ JPG, PNG, WEBP, PDF</span>
-              <input type="file" name="file" accept="image/*,.pdf" required />
+              <input
+                type="file"
+                name="file"
+                accept="image/*,.pdf"
+                required
+              />
             </label>
 
             <div class="form-grid">
               <label>
                 ประเภทเอกสาร
                 <select name="document_type">
-                  <option value="slip">สลิปโอนเงิน</option>
-                  <option value="receipt">ใบเสร็จ</option>
-                  <option value="invoice">ใบกำกับภาษี</option>
+                  <option value="receipt">ใบเสร็จรับเงิน</option>
+                  <option value="tax_invoice">ใบกำกับภาษี</option>
+                  <option value="receipt_tax_invoice">ใบเสร็จ/ใบกำกับภาษี</option>
                   <option value="other">อื่น ๆ</option>
                 </select>
               </label>
 
               <label>
-                ประเภทรายการ
-                <select name="transaction_type">
-                  <option value="expense">รายจ่าย</option>
-                  <option value="income">รายรับ</option>
-                </select>
-              </label>
-
-              <label>
-                หมวดหมู่
-                <input type="text" name="category" placeholder="เช่น ค่าอุปกรณ์ / ลูกค้าโอนเงิน" />
+                หมวดหมู่ค่าใช้จ่าย
+                <input
+                  type="text"
+                  name="expense_category"
+                  placeholder="เช่น ค่าอุปกรณ์ / ค่าเดินทาง / ค่าอาหาร"
+                />
               </label>
 
               <label>
                 ผู้บันทึก
-                <input type="text" name="uploaded_by" placeholder="เช่น น้ำ" />
+                <input
+                  type="text"
+                  name="uploaded_by"
+                  placeholder="เช่น น้ำ"
+                />
+              </label>
+
+              <label>
+                สถานะเริ่มต้น
+                <select name="status">
+                  <option value="pending_review">รอตรวจสอบ</option>
+                  <option value="approved">ตรวจแล้ว</option>
+                </select>
               </label>
             </div>
 
             <label>
               หมายเหตุ
-              <textarea name="description" placeholder="รายละเอียดเพิ่มเติม ถ้ามี"></textarea>
+              <textarea
+                name="description"
+                placeholder="รายละเอียดเพิ่มเติม เช่น ใช้ในโปรเจกต์ไหน / แผนกใด"
+              ></textarea>
             </label>
 
-            <button class="primary-btn" type="submit">อัพโหลดและอ่านข้อมูล</button>
+            <button class="primary-btn" type="submit">
+              อัพโหลดและอ่านข้อมูล
+            </button>
           </form>
         </div>
 
         <div class="panel result-panel">
           <div class="panel-title">
             <span>ผลลัพธ์ OCR</span>
-            <small>Preview</small>
+            <small>Receipt / Tax Invoice Preview</small>
           </div>
+
           <div id="result" class="empty-state">
             <div class="empty-icon">◎</div>
             <strong>ยังไม่มีข้อมูล</strong>
-            <p>หลังอัพโหลด ระบบจะแสดงข้อมูลวันที่ เวลา ผู้จ่าย ผู้รับ ยอดเงิน และเลขอ้างอิงที่นี่</p>
+            <p>
+              หลังอัพโหลด ระบบจะแสดงข้อมูลผู้ออกเอกสาร เลขผู้เสียภาษี
+              เลขที่ใบเสร็จ วันที่ ลูกค้า และยอดรวมที่นี่
+            </p>
           </div>
         </div>
       </section>
