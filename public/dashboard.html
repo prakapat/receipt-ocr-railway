@@ -35,10 +35,7 @@
         <div>
           <p class="eyebrow">Receipt Overview</p>
           <h1>Dashboard ใบเสร็จ / ใบกำกับภาษี</h1>
-          <p>
-            สรุปข้อมูลใบเสร็จรับเงินและใบกำกับภาษีจาก Google Sheet
-            พร้อมค้นหา กรองข้อมูล และเปิดดูไฟล์ต้นฉบับ
-          </p>
+          <p>สรุปข้อมูลใบเสร็จรับเงินและใบกำกับภาษี พร้อมเปิดดูไฟล์ต้นฉบับ</p>
         </div>
 
         <a class="header-link" href="index.html">+ อัพโหลดใหม่</a>
@@ -179,8 +176,7 @@
           .toLowerCase()
           .includes(keyword);
 
-        const matchType =
-          !documentType || row.document_type === documentType;
+        const matchType = !documentType || row.document_type === documentType;
 
         return matchKeyword && matchType;
       });
