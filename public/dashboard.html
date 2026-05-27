@@ -37,7 +37,7 @@
           <h1>Dashboard ใบเสร็จ / ใบกำกับภาษี</h1>
           <p>
             สรุปข้อมูลใบเสร็จรับเงินและใบกำกับภาษีจาก Google Sheet
-            พร้อมค้นหาและกรองข้อมูล
+            พร้อมค้นหา กรองข้อมูล และเปิดดูไฟล์ต้นฉบับ
           </p>
         </div>
 
@@ -96,13 +96,14 @@
                 <th>ยอดก่อน VAT</th>
                 <th>VAT</th>
                 <th>ยอดรวม</th>
+                <th>ไฟล์</th>
                 <th>สถานะ</th>
               </tr>
             </thead>
 
             <tbody id="tableBody">
               <tr>
-                <td colspan="10">กำลังโหลดข้อมูล...</td>
+                <td colspan="11">กำลังโหลดข้อมูล...</td>
               </tr>
             </tbody>
           </table>
@@ -132,6 +133,23 @@
       return type || "-";
     }
 
+    function fileButton(url) {
+      if (!url) {
+        return `<span class="file-empty">ไม่มีไฟล์</span>`;
+      }
+
+      return `
+        <a
+          class="file-link"
+          href="${url}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ดูไฟล์
+        </a>
+      `;
+    }
+
     async function loadRows() {
       try {
         const response = await fetch("/api/transactions");
@@ -146,7 +164,7 @@
       } catch (error) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="10">เกิดข้อผิดพลาด: ${error.message}</td>
+            <td colspan="11">เกิดข้อผิดพลาด: ${error.message}</td>
           </tr>
         `;
       }
@@ -172,7 +190,7 @@
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="10">ยังไม่มีข้อมูล</td>
+            <td colspan="11">ยังไม่มีข้อมูล</td>
           </tr>
         `;
       }
@@ -193,6 +211,7 @@
             <td>${money(row.subtotal_amount)}</td>
             <td>${money(row.vat_amount)}</td>
             <td><strong>${money(row.total_amount)}</strong></td>
+            <td>${fileButton(row.file_url)}</td>
             <td>
               <span class="status-pill">
                 ${row.status || "-"}
