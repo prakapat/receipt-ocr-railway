@@ -1,7 +1,6 @@
 <!-- =========================
 public/style.css
 ========================= -->
-<style>
 * { box-sizing: border-box; }
 
 :root {
@@ -498,4 +497,51 @@ tbody tr:hover {
     grid-column: span 1;
   }
 }
-</style>
+
+.file-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 900;
+  font-size: 12px;
+  text-decoration: none;
+  border: 1px solid #bfdbfe;
+}
+
+.file-link:hover {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.file-empty {
+  display: inline-flex;
+  white-space: nowrap;
+  color: #98a2b3;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pill.receipt {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.pill.tax_invoice {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.pill.receipt_tax_invoice {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.pill.other {
+  background: #f3f4f6;
+  color: #374151;
+}
