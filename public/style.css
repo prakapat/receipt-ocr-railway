@@ -545,3 +545,37 @@ tbody tr:hover {
   background: #f3f4f6;
   color: #374151;
 }
+
+.review-form {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.review-form label {
+  display: block;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.review-form input,
+.review-form select {
+  margin-top: 8px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  padding: 10px 0 0;
+  font-weight: 800;
+  background: transparent;
+}
+
+.review-form input:focus,
+.review-form select:focus {
+  box-shadow: none;
+}
+
+.result-actions button {
+  width: 100%;
+}
