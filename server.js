@@ -19,7 +19,7 @@ const upload = multer({
 });
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -31,12 +31,17 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.post("/upload", upload.single("file"), async (req, res) => {
+/**
+ * STEP 1:
+ * Upload file → OCR Preview
+ * ยังไม่บันทึกลง Google Sheet
+ */
+app.post("/ocr-preview", upload.single("file"), async (req, res) => {
   try {
-    if (!process.env.N8N_WEBHOOK_URL) {
+    if (!process.env.N8N_OCR_PREVIEW_URL) {
       return res.status(500).json({
         success: false,
-        message: "Missing N8N_WEBHOOK_URL"
+        message: "Missing N8N_OCR_PREVIEW_URL"
       });
     }
 
@@ -56,11 +61,11 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
     form.append("uploaded_by", req.body.uploaded_by || "Unknown");
     form.append("document_type", req.body.document_type || "receipt");
-    form.append("transaction_type", req.body.transaction_type || "expense");
     form.append("expense_category", req.body.expense_category || "ทั่วไป");
+    form.append("status", req.body.status || "pending_review");
     form.append("description", req.body.description || "");
 
-    const n8nResponse = await fetch(process.env.N8N_WEBHOOK_URL, {
+    const n8nResponse = await fetch(process.env.N8N_OCR_PREVIEW_URL, {
       method: "POST",
       headers: form.getHeaders(),
       body: form
@@ -75,18 +80,68 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       data = { raw: text };
     }
 
-    res.status(n8nResponse.status).json({
+    return res.status(n8nResponse.status).json({
       success: n8nResponse.ok,
       data
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("OCR Preview error:", error);
+
+    return res.status(500).json({
       success: false,
       message: error.message
     });
   }
 });
 
+/**
+ * STEP 2:
+ * User ตรวจ/แก้แล้ว → Confirm Save
+ * ค่อยบันทึกลง Google Sheet
+ */
+app.post("/confirm-save", async (req, res) => {
+  try {
+    if (!process.env.N8N_CONFIRM_SAVE_URL) {
+      return res.status(500).json({
+        success: false,
+        message: "Missing N8N_CONFIRM_SAVE_URL"
+      });
+    }
+
+    const n8nResponse = await fetch(process.env.N8N_CONFIRM_SAVE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(req.body)
+    });
+
+    const text = await n8nResponse.text();
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    return res.status(n8nResponse.status).json({
+      success: n8nResponse.ok,
+      data
+    });
+  } catch (error) {
+    console.error("Confirm Save error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * Dashboard API
+ */
 app.get("/api/transactions", async (req, res) => {
   try {
     if (!process.env.N8N_TRANSACTIONS_URL) {
@@ -99,12 +154,14 @@ app.get("/api/transactions", async (req, res) => {
     const response = await fetch(process.env.N8N_TRANSACTIONS_URL);
     const data = await response.json();
 
-    res.json({
+    return res.json({
       success: true,
       data
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Transactions error:", error);
+
+    return res.status(500).json({
       success: false,
       message: error.message
     });
@@ -119,7 +176,7 @@ app.use((error, req, res, next) => {
     });
   }
 
-  res.status(500).json({
+  return res.status(500).json({
     success: false,
     message: error.message || "Internal Server Error"
   });
